@@ -12,8 +12,8 @@ class Grid: # Environment
     self.j = start[1]
 
   def Set(self, rewards, actions, obey_prob):
-    # rewards are a dict of: (i, j): r (row, col): reward
-    # actions are a dict of: (i, j): A (row, col): list of possible actions
+    # Rewards are a dict of: (i, j): r (row, col): reward
+    # Actions are a dict of: (i, j): A (row, col): list of possible actions
     self.rewards = rewards
     self.actions = actions
     self.obey_prob = obey_prob
@@ -56,7 +56,7 @@ class Grid: # Environment
   def CheckMove(self, action):
     i = self.i
     j = self.j
-    # check if legal move first
+    # Check if legal move first
     if action in self.actions[(self.i, self.j)]:
       if action == 'U':
         i -= 1
@@ -66,28 +66,28 @@ class Grid: # Environment
         j += 1
       elif action == 'L':
         j -= 1
-    # return a reward (if any)
+    # Returns a reward (if any)
     reward = self.rewards.get((i, j), 0)
     return ((i, j), reward)
 
   def GetTransitionProbabilities(self, action):
-    # returns a list of (probability, reward, s') transition tuples
+    # Returns a list of (probability, reward, s') transition tuples
     probs = []
     state, reward = self.CheckMove(action)
     probs.append((self.obey_prob, reward, state))
-    disobey_prob = 1 - self.obey_prob
-    if not (disobey_prob > 0.0):
+    disobeyProb = 1 - self.obey_prob
+    if not (disobeyProb > 0.0):
       return probs
     if action == 'U' or action == 'D':
       state, reward = self.CheckMove('L')
-      probs.append((disobey_prob / 2, reward, state))
+      probs.append((disobeyProb / 2, reward, state))
       state, reward = self.CheckMove('R')
-      probs.append((disobey_prob / 2, reward, state))
+      probs.append((disobeyProb / 2, reward, state))
     elif action == 'L' or action == 'R':
       state, reward = self.CheckMove('U')
-      probs.append((disobey_prob / 2, reward, state))
+      probs.append((disobeyProb / 2, reward, state))
       state, reward = self.CheckMove('D')
-      probs.append((disobey_prob / 2, reward, state))
+      probs.append((disobeyProb / 2, reward, state))
     return probs  
 
   def GameOver(self):
@@ -100,6 +100,43 @@ class Grid: # Environment
     # either a position that has possible next actions
     # or a position that yields a reward
     return set(self.actions.keys()) | set(self.rewards.keys())  
+
+
+def StandardGrid(obeyProbability=1.0, stepCost=None):
+  # Grid shows rewards for arriving at each state, and potential actions to be taken at each state
+  # x = non traversible, s = start position, n = reward at that state 
+  # .  .  .  1
+  # .  x  . -1
+  # s  .  .  .
+  # obeyProbability = likelihood of obeying command
+  # stepCost = penalty applied each step to disincentivize the number of moves (-0.1)
+  g = Grid(3, 4, (2, 0))
+  rewards = {(0, 3): 1, (1, 3): -1}
+  actions = {
+    (0, 0): ('D', 'R'),
+    (0, 1): ('L', 'R'),
+    (0, 2): ('L', 'D', 'R'),
+    (1, 0): ('U', 'D'),
+    (1, 2): ('U', 'D', 'R'),
+    (2, 0): ('U', 'R'),
+    (2, 1): ('L', 'R'),
+    (2, 2): ('L', 'R', 'U'),
+    (2, 3): ('L', 'U'),
+  }
+  g.Set(rewards, actions, obeyProbability)
+  if stepCost is not None:
+    g.rewards.update({
+      (0, 0): stepCost,
+      (0, 1): stepCost,
+      (0, 2): stepCost,
+      (1, 0): stepCost,
+      (1, 2): stepCost,
+      (2, 0): stepCost,
+      (2, 1): stepCost,
+      (2, 2): stepCost,
+      (2, 3): stepCost,
+    })
+  return g
 
 
   
