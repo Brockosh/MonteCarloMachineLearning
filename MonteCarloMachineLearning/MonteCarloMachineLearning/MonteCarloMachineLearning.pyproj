@@ -21,8 +21,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="grid_world.py" />
+    <Compile Include="GridWorld.py" />
     <Compile Include="MonteCarloMachineLearning.py" />
+    <Compile Include="Utilities.py" />
+    <Compile Include="ValueIteration.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
